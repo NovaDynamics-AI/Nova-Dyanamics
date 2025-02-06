@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          
+      - name: Build TypeScript
+        run: |
+          npm ci
+          npm run build
+          
+      - name: Build Rust
+        run: |
+          cd runtime
+          cargo build --release
+          
+      - name: Build Go
+        run: |
+          cd network
+          go build -o nova-network
