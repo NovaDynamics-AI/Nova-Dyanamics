@@ -17,7 +17,7 @@ class ModelEvaluator:
 
     def evaluate_batch(self, inputs: List[str], expected: List[str]) -> ModelMetrics:
         metrics = ModelMetrics(
-            accuracy=np.random.random(),  # Simulated accuracy
+            accuracy=np.random.random(),  # Simulated accuracy in ms
             latency=np.random.random() * 100,  # Simulated latency in ms
             token_count=len(' '.join(inputs).split()),
             memory_usage=np.random.random() * 1024  # Simulated memory usage in MB
