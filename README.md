@@ -1,5 +1,5 @@
 # Nova Dynamics - Advanced AI Agent Framework
-(Banner.png)
+![alt text](Banner.png)
 ## Table of Contents
 - [Overview](#overview)
 - [Core Features](#core-features)
