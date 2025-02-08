@@ -8,29 +8,70 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - uses: actions/setup-go@v4
+          cache: 'npm'
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-      - uses: actions-rs/toolchain@v1
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          
+
+      - name: Cache Cargo Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache Go Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
       - name: Build TypeScript
-        run: |
-          npm ci
-          npm run build
-          
+        run: npm run build
+
       - name: Build Rust
         run: |
           cd runtime
           cargo build --release
-          
+
       - name: Build Go
         run: |
           cd network
           go build -o nova-network
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts
+          path: |
+            runtime/target/release/
+            network/nova-network
+            dist/
+
+      - name: Deployment (Example)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "Deploying application..."
+          # Add deployment commands here (e.g., uploading to a server, deploying to a container registry)
